@@ -3,7 +3,7 @@
 #include <d3dcompiler.h>  // D3DCompileFromFile
 #include <cassert>  // assert
 #include <dxcapi.h>
-#pragma comment(lib, "dxcomiler.lib")
+#pragma comment(lib, "dxcompiler.lib")
 
 // シェーダーファイルを読み込み、コンパイルする
 void Shader::Load(const std::wstring& filePath, const std::wstring& shaderModel) {
