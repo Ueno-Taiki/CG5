@@ -11,6 +11,7 @@ void RootSignature::Create() {
 		rootSignature_ = nullptr;
 	}
 
+	// クラス内の取得するために追加
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
 	// RootSignature作成 -----------------------------
