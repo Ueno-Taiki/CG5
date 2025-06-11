@@ -11,6 +11,8 @@ void VertexBuffer::Create(const UINT size, const UINT stride) {
 	// クラス内のdxCommonを利用するために追加
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
+	HRESULT hr;
+
 	// VertexResourceの生成 ---------
 	// 頂点リソース用のヒープの設定
 	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
@@ -29,7 +31,7 @@ void VertexBuffer::Create(const UINT size, const UINT stride) {
 
 	// 実際に頂点リソースを生成する
 	ID3D12Resource* vertexResource = nullptr;
-	HRESULT hr = dxCommon->GetDevice()->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &vertexResourceDesc,
+	hr = dxCommon->GetDevice()->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &vertexResourceDesc,
 		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&vertexResource));
 	assert(SUCCEEDED(hr)); // うまくいかなかったときは起動できない
 

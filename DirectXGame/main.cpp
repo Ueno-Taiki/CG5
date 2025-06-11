@@ -1,4 +1,5 @@
 #include <Windows.h>
+#include <cassert>
 #include "KamataEngine.h"
 #include "Shader.h"
 #include "RootSignature.h"
@@ -53,9 +54,12 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	// 頂点データの準備
 	VertexDate vertices[] = {
-		{ 0.0f, 0.5f, 0.0f, 1.0f }, // 下
-		{ 0.5f, -0.5f, 0.0f, 1.0f }, // 右下
-		{ -0.5f, -0.5f, 0.0f, 1.0f }, // 右下
+		{ -1.0f, -1.0f, 0.0f, 1.0f }, // 左下
+		{ -1.0f, 1.0f, 0.0f, 1.0f }, // 左上
+		{ 1.0f, -1.0f, 0.0f, 1.0f }, // 右下
+		{ -1.0f, 1.0f, 0.0f, 1.0f }, // 左上
+		{ 1.0f, 1.0f, 0.0f, 1.0f }, // 右上
+		{ 1.0f, -1.0f, 0.0f, 1.0f }, // 右下
 	};
 
 	// VertexBufferの生成
@@ -72,7 +76,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	// 頂点インデックスデータの準備
 	uint16_t indices[] = {
-		0, 1, 2,
+		0, 1, 2, 3, 4, 5,
 	};
 
 	// IndexBufferの生成

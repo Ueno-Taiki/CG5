@@ -8,6 +8,8 @@ using namespace KamataEngine;
 
 // 生成
 void IndexBuffer::Create(const UINT size, const UINT stride) { 
+	HRESULT hr;
+
 	// strideの値によって、1つのインデックスのフォーマットを決める
 	assert(stride == 2 || stride == 4);  // 2byte or 4byteのみ受け取る
 	DXGI_FORMAT format = (stride == 2) ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
@@ -33,7 +35,7 @@ void IndexBuffer::Create(const UINT size, const UINT stride) {
 
 	// 実際に頂点リソースを生成する
 	ID3D12Resource* indexResource = nullptr;
-	HRESULT hr = dxCommon->GetDevice()->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &indexResourceDesc,
+	hr = dxCommon->GetDevice()->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &indexResourceDesc,
 		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&indexResource));
 	assert(SUCCEEDED(hr)); // うまくいかなかったときは起動できない
 
@@ -41,7 +43,7 @@ void IndexBuffer::Create(const UINT size, const UINT stride) {
 	indexBuffer_ = indexResource;
 
 	// indexBufferViewを作成する ---------
-	D3D12_INDEX_BUFFER_VIEW indexBufferView{ };
+	D3D12_INDEX_BUFFER_VIEW indexBufferView{};
 	// リソースの先頭アドレスから使う
 	indexBufferView.BufferLocation = indexResource->GetGPUVirtualAddress();
 	// 使用するリソースのサイズは頂点3つ分のサイズ
