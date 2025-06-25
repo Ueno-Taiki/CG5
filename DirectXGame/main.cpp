@@ -175,8 +175,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;  // 2Dテクスチャ
 	srvDesc.Texture2D.MipLevels = 1;  // MipLevelは1しかない
 
-	// DSVHeapの先頭にDSVを作る
-	device->CreateDepthStencilView(renderTextureResource, &srvDesc, srvHandleCPU);
+	device->CreateShaderResourceView(renderTextureResource, &srvDesc, srvHandleCPU);
 
 	// メインループ
 	while (true) {
