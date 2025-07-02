@@ -184,6 +184,55 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			break;
 		}
 
+		// TransitionBarrierをSRV⇒RTVに設定する
+		D3D12_RESOURCE_BARRIER barrier{};
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;  // TranslationBarrierの設定
+		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;  // フラグはNoneにしておく
+		barrier.Transition.pResource = renderTextureResource;  // バリアを張る対象のリソース
+		barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;  // 遷移前
+		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;  // 遷移後
+		commandList->ResourceBarrier(1, &barrier);  // バリアを張る
+
+		// 描画先のRTVとDSVを設定する
+		commandList->OMSetRenderTargets(1, &rtvHandleCPU, false, &dsvHandleCPU);
+
+		// Viewportの設定
+		D3D12_VIEWPORT viewport{};
+		viewport.Width = WinApp::kWindowWidth;
+		viewport.Height = WinApp::kWindowHeight;
+		viewport.TopLeftX = 0;
+		viewport.TopLeftY = 0;
+		viewport.MinDepth = 0.0f;  // 深度の最小値
+		viewport.MaxDepth = 1.0f;  // 深度の最大値
+
+		commandList->RSSetViewports(1, &viewport);
+
+		// Scissiorの設定
+		D3D12_RECT scissorRect{};
+		// 基本的にビューポートと同じ矩形が構成されるようにする
+		scissorRect.left = 0;
+		scissorRect.right = WinApp::kWindowWidth;
+		scissorRect.top = 0;
+		scissorRect.bottom = WinApp::kWindowHeight;
+
+		commandList->RSSetScissorRects(1, &scissorRect);
+
+		// 全画面クリア
+		commandList->ClearRenderTargetView(rtvHandleCPU, kRenderTargetClearColor, 0, nullptr);
+		// 指定した深度で画面全体をクリアする
+		commandList->ClearDepthStencilView(dsvHandleCPU, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+
+		// 描画
+
+
+		// TransitionBarrierを元に戻し、PixelShaderが扱えるようにする
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;  // TranslationBarrierの設定
+		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;  // フラグはNoneにしておく
+		barrier.Transition.pResource = renderTextureResource;  // バリアを張る対象のリソース
+		barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;  // 遷移前
+		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;  // 遷移後
+		commandList->ResourceBarrier(1, &barrier);  // バリアを張る
+
 		// 描画開始
 		dxCommon->PreDraw();
 
@@ -194,6 +243,13 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		commandList->IASetIndexBuffer(ib.GetView()); // IBVを設定する
 		// トポロジの設定
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		// 使用するディスクリプタヒープの設定
+		commandList->SetDescriptorHeaps(srvDescriptorHeap->GetDesc().NumDescriptors, &srvDescriptorHeap);
+
+		// SRVのDescripterTableの先頭を設定
+		commandList->SetGraphicsRootDescriptorTable(0, srvHandleGPU);
+
 		// 頂点数、インデックス数、インデックスの開始位置、インデックスのオフセット
 		commandList->DrawIndexedInstanced(_countof(indices), 1, 0, 0, 0);
 
@@ -294,7 +350,8 @@ ID3D12Resource* CreateRenderTextureResource(ID3D12Device* device, uint32_t width
 
 	// 4.RenderTextureResourceの生成
 	ID3D12Resource* resource = nullptr;
-	HRESULT hr = device->CreateCommittedResource(
+	HRESULT hr;
+	hr = device->CreateCommittedResource(
 		&heapProperties,  // Heapの設定
 		D3D12_HEAP_FLAG_NONE,  // Heapの特殊な設定
 		&resourceDesc,  // Resourceの設定
@@ -332,7 +389,8 @@ ID3D12Resource* CreateDepthStencilTextureResource(ID3D12Device* device, int32_t 
 
 	// 3.Resourceの生成
 	ID3D12Resource* resource = nullptr;
-	HRESULT hr = device->CreateCommittedResource(
+	HRESULT hr;
+	hr = device->CreateCommittedResource(
 		&heapProperties,  // Heapの設定
 		D3D12_HEAP_FLAG_NONE,  // Heapの特殊の設定
 		&resourceDesc,  // Resourceの設定
