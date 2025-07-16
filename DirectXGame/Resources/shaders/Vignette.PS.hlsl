@@ -11,6 +11,13 @@ PixelShaderOutput main(VertexShaderOutput input) {
     PixelShaderOutput output;
 
     output.color = gTexture.Sample(gSampler, input.texcoord);
+
+    float32_t2 uv = input.texcoord;
+    float32_t4 textureColor = gTexture.Sample(gSampler, uv);
+    
+    // grayscale
+    float32_t value = dot(textureColor.rgb, float32_t3(0.2125f, 0.7154f, 0.0721f));
+    output.color = float32_t4(value, value, value, textureColor.a);
     
     // 周囲を0に、中心になるほど明るくなるように計算で調節
     float32_t2 correct = input.texcoord * (1.0f - input.texcoord.yx);
