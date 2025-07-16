@@ -76,7 +76,6 @@
     </FxCompile>
     <FxCompile Include="Resources\shaders\TestVS.hlsl" />
     <FxCompile Include="Resources\shaders\TestPS.hlsl" />
-    <FxCompile Include="Resources\shaders\Vignette.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Sprite.hlsli">

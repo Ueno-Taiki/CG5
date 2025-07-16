@@ -49,14 +49,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	ps.LoadDxc(L"Resources/shaders/TestPS.hlsl", L"ps_6_0");
 	assert(ps.GetDxcBlob() != nullptr);
 
-	// ヴィネッティングシェーダーの読み込みとコンパイル
-	Shader Vps;
-	Vps.LoadDxc(L"Resources/shaders/Vignette.PS.hlsl", L"ps_6_0");
-	assert(Vps.GetDxcBlob() != nullptr);
-
 	// PipelineStateの生成 ------------
 	PipelineState pipelineState;
-	SetupPipelineState(pipelineState, rs, vs, ps, Vps);
+	SetupPipelineState(pipelineState, rs, vs, ps);
 
 	// リソースの確保含め、頂点情報を柔軟に対応できるようにVertexData構造体を新たに作成する
 	struct VertexDate {
@@ -303,7 +298,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 // インプットレイアウト、ブレンドステート、ラスタライザステート
 // 引数として空のpipelineState、RootSinature、頂点シェーダーvs、ピクセルシェーダーpsを参照で受け取る
-void SetupPipelineState(PipelineState& pipelineState, RootSignature& rs, Shader& vs, Shader& ps, Shader& Vps) { 
+void SetupPipelineState(PipelineState& pipelineState, RootSignature& rs, Shader& vs, Shader& ps) { 
 	// InputLayout
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[2] = {};
 	inputElementDescs[0].SemanticName = "POSITION";
@@ -337,7 +332,6 @@ void SetupPipelineState(PipelineState& pipelineState, RootSignature& rs, Shader&
 	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc; // InputLayout
 	graphicsPipelineStateDesc.VS = { vs.GetDxcBlob()->GetBufferPointer(), vs.GetDxcBlob()->GetBufferSize() }; // VertexShader
 	graphicsPipelineStateDesc.PS = { ps.GetDxcBlob()->GetBufferPointer(), ps.GetDxcBlob()->GetBufferSize() }; // PixelShader
-	graphicsPipelineStateDesc.PS = { Vps.GetBlob()->GetBufferPointer(), Vps.GetDxcBlob()->GetBufferSize() }; // VignettingShader
 	graphicsPipelineStateDesc.BlendState = blendDesc; // BlendState
 	graphicsPipelineStateDesc.RasterizerState = rasterizerDesc; // RasterizerState
 
